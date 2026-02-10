@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+html,
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+nav {
+  background-color: var(--color-bg-accent);
+  height: 100px;
+}
+
+h1 {
+  color: var(--color-text-accent);
+}
+
+.video-cell {
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,45 @@
+:root {
+  --color-theme-1: hsl(9, 83%, 50%);
+  --color-theme-2: hsl(222, 28%, 50%);
+}
+
+* {
+  transition:
+    background-color 1s,
+    color 1s;
+}
+
+.theme-container {
+  width: 100%;
+  height: 100%;
+}
+
+.dark-theme,
+.dark-theme * {
+  /* Text */
+  --color-text-primary: hsl(from var(--color-theme-1) h s 95%);
+  --color-text-secondary: hsl(from var(--color-theme-1) h s 80%);
+  --color-text-accent: var(--color-theme-1);
+  /* --color-text-link-fresh: #1e90ff;
+  --color-text-link-used: #ffffff; */
+
+  /* Background */
+  --color-bg-primary: hsl(from var(--color-theme-2) h s 15%);
+  --color-bg-secondary: hsl(from var(--color-theme-2) h s 30%);
+  --color-bg-accent: var(--color-theme-2);
+}
+
+.light-theme,
+.light-theme * {
+  /* Text */
+  --color-text-primary: hsl(from var(--color-theme-1) h s 5%);
+  --color-text-secondary: hsl(from var(--color-theme-1) h s 20%);
+  --color-text-accent: var(--color-theme-1);
+  /* --color-text-link-fresh: #1e90ff;
+  --color-text-link-used: #ffffff; */
+
+  /* Background */
+  --color-bg-primary: hsl(from var(--color-theme-2) h s 85%);
+  --color-bg-secondary: hsl(from var(--color-theme-2) h s 70%);
+  --color-bg-accent: var(--color-theme-2);
+}
