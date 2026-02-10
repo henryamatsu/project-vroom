@@ -3,7 +3,7 @@ import VideoGrid from "../components/VideoGrid";
 export default function Home() {
   return (
     <>
-      <VideoGrid count={30} />
+      <VideoGrid count={1} />
     </>
   );
 }

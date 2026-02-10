@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import VideoCard from "./VideoCard";
 
 const ASPECT_RATIO = 16 / 9;
 
@@ -101,11 +102,7 @@ export default function VideoGrid({ count }: { count: number }) {
         }}
       >
         {Array.from({ length: count }, (_, i) => (
-          <div
-            key={i}
-            className="video-cell"
-            style={{ aspectRatio: ASPECT_RATIO, width: "100%", height: "100%" }}
-          />
+          <VideoCard name={"test"} isMuted={false} isSpeaking={false} key={i} />
         ))}
       </div>
     </div>
