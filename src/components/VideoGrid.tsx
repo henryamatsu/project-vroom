@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import VideoCard from "./VideoCard";
+import { Participant } from "../types";
 
 const ASPECT_RATIO = 16 / 9;
 
@@ -65,7 +66,12 @@ function computeLayout(
   };
 }
 
-export default function VideoGrid({ count }: { count: number }) {
+export default function VideoGrid({
+  participants,
+}: {
+  participants: Participant[];
+}) {
+  const count = participants.length;
   const containerRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<Layout>({
     cols: 1,
@@ -101,9 +107,14 @@ export default function VideoGrid({ count }: { count: number }) {
           gridAutoRows: `${layout.tileHeight}px`,
         }}
       >
-        {Array.from({ length: count }, (_, i) => (
-          <VideoCard name={"test"} isMuted={false} isSpeaking={false} key={i} />
-        ))}
+        {participants.map(
+          (
+            participant,
+            i, //participant will contain name, isMuted, isSpeaking
+          ) => (
+            <VideoCard participant={participant} key={i} />
+          ),
+        )}
       </div>
     </div>
   );
