@@ -6,6 +6,11 @@ import LiveKitConnectionError from "@/src/components/LiveKitConnectionError";
 import LiveKitConnecting from "@/src/components/LiveKitConnecting";
 import { useLiveKitToken } from "@/src/hooks/useLiveKitToken";
 
+/**
+ * Set to true to start muted. Toggle this in code for testing until a mute button is added.
+ */
+const START_MUTED = false;
+
 export default function RoomPage() {
   const { token, error, isLoading } = useLiveKitToken();
 
@@ -22,11 +27,11 @@ export default function RoomPage() {
       serverUrl={token.serverUrl}
       token={token.participantToken}
       connect={true}
-      audio={false}
+      audio={true}
       video={false}
       className="h-screen w-screen"
     >
-      <RoomContent />
+      <RoomContent startMuted={START_MUTED} />
     </LiveKitRoom>
   );
 }

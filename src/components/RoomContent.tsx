@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import FaceTracker from "@/src/components/FaceTracker";
-import VideoGrid from "@/src/components/VideoGrid";
-import LiveKitStatusPanel from "@/src/components/LiveKitStatusPanel";
+import VideoGrid, {
+  type VideoGridParticipant,
+} from "@/src/components/VideoGrid";
 import { BlendshapeCategory, Participant } from "@/src/types";
 import { Euler } from "three";
 import {
   useDataChannel,
   useConnectionState,
   useParticipants,
+  useLocalParticipant,
+  RoomAudioRenderer,
 } from "@livekit/components-react";
 import type { ReceivedDataMessage } from "@livekit/components-core";
 import {
@@ -20,13 +23,25 @@ import {
   type FaceTrackingPayload,
 } from "@/src/lib/livekit";
 
+interface RoomContentProps {
+  /** If true, start with microphone muted. Toggle in code for testing. */
+  startMuted?: boolean;
+}
+
 /**
  * Inner room content - must be inside LiveKitRoom for useDataChannel.
  * Builds participants from LiveKit room state + face data. Local user is always first and mirrored.
  */
-export default function RoomContent() {
+export default function RoomContent({ startMuted = false }: RoomContentProps) {
   const connectionState = useConnectionState();
   const liveKitParticipants = useParticipants();
+  const { localParticipant } = useLocalParticipant();
+
+  useEffect(() => {
+    if (connectionState === "connected" && startMuted) {
+      void localParticipant.setMicrophoneEnabled(false);
+    }
+  }, [connectionState, startMuted, localParticipant]);
 
   const [localBlendshapes, setLocalBlendshapes] = useState<
     BlendshapeCategory[]
@@ -35,10 +50,6 @@ export default function RoomContent() {
   const [remoteFaceData, setRemoteFaceData] = useState<
     Map<string, FaceTrackingPayload>
   >(new Map());
-  const [receivedFrom, setReceivedFrom] = useState<string[]>([]);
-  const [lastReceived, setLastReceived] = useState<FaceTrackingPayload | null>(
-    null,
-  );
 
   const { send } = useDataChannel(
     FACE_TRACKING_TOPIC,
@@ -48,10 +59,6 @@ export default function RoomContent() {
         const payload = JSON.parse(decoded) as FaceTrackingPayload;
         const identity = msg.from?.identity ?? "unknown";
 
-        setLastReceived(payload);
-        setReceivedFrom((prev) =>
-          prev.includes(identity) ? prev : [...prev, identity],
-        );
         setRemoteFaceData((prev) => {
           const next = new Map(prev);
           next.set(identity, payload);
@@ -82,7 +89,7 @@ export default function RoomContent() {
     [send, connectionState],
   );
 
-  const participants: Participant[] = useMemo(() => {
+  const videoGridParticipants: VideoGridParticipant[] = useMemo(() => {
     return liveKitParticipants.map((lkParticipant, index) => {
       const isLocal = index === 0;
       const identity = lkParticipant.identity;
@@ -98,7 +105,7 @@ export default function RoomContent() {
           ? payloadToEuler(payload)
           : new Euler();
 
-      return {
+      const participant: Participant = {
         id: identity,
         name,
         url: DEFAULT_AVATAR_URL,
@@ -108,22 +115,20 @@ export default function RoomContent() {
         isSpeaking: false,
         isMirrored: isLocal,
       };
+
+      return { participant, liveKitParticipant: lkParticipant };
     });
   }, [liveKitParticipants, localBlendshapes, localRotation, remoteFaceData]);
 
   return (
     <>
-      {/* <LiveKitStatusPanel
-        connectionState={connectionState}
-        receivedFrom={receivedFrom}
-        lastReceived={lastReceived}
-      /> */}
+      <RoomAudioRenderer />
 
       <FaceTracker onDataChange={handleFaceDataChange} showVideo={false}>
         {() => null}
       </FaceTracker>
 
-      <VideoGrid participants={participants} />
+      <VideoGrid participants={videoGridParticipants} />
     </>
   );
 }
