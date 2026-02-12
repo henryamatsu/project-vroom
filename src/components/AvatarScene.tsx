@@ -3,7 +3,6 @@
 import { Color } from "three";
 import { Avatar } from "./Avatar";
 import { Participant } from "@/src/types";
-import { View } from "@react-three/drei";
 
 export function AvatarScene({
   participant,
@@ -13,7 +12,6 @@ export function AvatarScene({
   participant: Participant;
 }) {
   return (
-    // <View>
     <>
       <ambientLight intensity={1} />
       <pointLight
@@ -31,6 +29,5 @@ export function AvatarScene({
       <pointLight position={[0, 0, 10]} intensity={0.5} castShadow />
       <Avatar participant={participant} />
     </>
-    // </View>
   );
 }

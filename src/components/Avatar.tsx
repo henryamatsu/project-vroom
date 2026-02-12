@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Mesh } from "three";
 import { useFrame, useGraph } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
+import { SkeletonUtils } from "three-stdlib";
 import { Participant } from "@/src/types";
 
-export function Avatar({
-  participant,
-  // mirrored = false,
-}: {
-  participant: Participant;
-}) {
+export function Avatar({ participant }: { participant: Participant }) {
   const { blendshapes, rotation, url, isMirrored } = participant;
 
   const { scene } = useGLTF(url);
-  const { nodes } = useGraph(scene);
+
+  const clonedScene = useMemo(() => {
+    return SkeletonUtils.clone(scene);
+  }, [scene]);
+
+  // Now use the cloned scene
+  const { nodes } = useGraph(clonedScene);
 
   const headMesh = useRef<Mesh[]>([]);
 
@@ -29,7 +31,7 @@ export function Avatar({
     ].filter((mesh): mesh is Mesh => !!mesh);
 
     headMesh.current = meshes;
-  }, [nodes, url]);
+  }, [nodes]);
 
   useFrame(() => {
     if (blendshapes.length > 0 && headMesh.current.length > 0) {
@@ -44,7 +46,6 @@ export function Avatar({
         });
       });
 
-      // Safely access rotation nodes
       if (nodes.Head) {
         nodes.Head.rotation.set(rotation.x, rotation.y, rotation.z);
       }
@@ -67,7 +68,7 @@ export function Avatar({
 
   return (
     <primitive
-      object={scene}
+      object={clonedScene}
       position={[0, -1.75, 3]}
       scale={isMirrored ? [-1, 1, 1] : [1, 1, 1]}
     />
