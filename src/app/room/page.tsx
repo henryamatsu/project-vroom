@@ -26,7 +26,7 @@ export default function RoomPage({
     [],
   );
 
-  const participantCount = 1;
+  const participantCount = 9;
   const testParticipant = {
     name: "test",
     url: "/models/default-avatar.glb",

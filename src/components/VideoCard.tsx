@@ -1,5 +1,6 @@
 // this is going to contain AvatarScene
 
+import { View } from "@react-three/drei";
 import { Participant } from "../types";
 import { AvatarScene } from "./AvatarScene";
 
@@ -20,7 +21,9 @@ export default function VideoCard({
     >
       {/* Video placeholder */}
       {isVideoOn ? (
-        <AvatarScene participant={participant} />
+        <View className={"h-full w-full"}>
+          <AvatarScene participant={participant} />
+        </View>
       ) : (
         <div className="flex flex-col items-center justify-center opacity-80">
           <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-neutral-700 text-xl font-semibold">

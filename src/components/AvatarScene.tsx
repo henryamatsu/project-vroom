@@ -1,9 +1,9 @@
 "use client";
 
 import { Color } from "three";
-import { Canvas } from "@react-three/fiber";
 import { Avatar } from "./Avatar";
 import { Participant } from "@/src/types";
+import { View } from "@react-three/drei";
 
 export function AvatarScene({
   participant,
@@ -13,26 +13,8 @@ export function AvatarScene({
   participant: Participant;
 }) {
   return (
-    <Canvas
-      camera={{ fov: 25 }}
-      shadows
-      gl={{
-        preserveDrawingBuffer: true,
-        antialias: true,
-        alpha: false,
-      }}
-      onCreated={({ gl }) => {
-        // Handle WebGL context loss
-        gl.domElement.addEventListener("webglcontextlost", (event) => {
-          event.preventDefault();
-          console.warn("WebGL context lost, attempting to restore...");
-        });
-
-        gl.domElement.addEventListener("webglcontextrestored", () => {
-          console.log("WebGL context restored");
-        });
-      }}
-    >
+    // <View>
+    <>
       <ambientLight intensity={1} />
       <pointLight
         position={[10, 10, 10]}
@@ -48,6 +30,7 @@ export function AvatarScene({
       />
       <pointLight position={[0, 0, 10]} intensity={0.5} castShadow />
       <Avatar participant={participant} />
-    </Canvas>
+    </>
+    // </View>
   );
 }
