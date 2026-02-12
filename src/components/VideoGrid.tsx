@@ -2,6 +2,10 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import VideoCard from "./VideoCard";
+import { Participant } from "../types";
+import { Canvas } from "@react-three/fiber";
+import { View } from "@react-three/drei";
+import { AvatarScene } from "./AvatarScene";
 
 const ASPECT_RATIO = 16 / 9;
 
@@ -65,7 +69,12 @@ function computeLayout(
   };
 }
 
-export default function VideoGrid({ count }: { count: number }) {
+export default function VideoGrid({
+  participants,
+}: {
+  participants: Participant[];
+}) {
+  const count = participants.length;
   const containerRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<Layout>({
     cols: 1,
@@ -93,18 +102,40 @@ export default function VideoGrid({ count }: { count: number }) {
   }, [recalculate]);
 
   return (
-    <div ref={containerRef} className="h-full w-full">
+    <div ref={containerRef} className="h-full w-full relative">
       <div
-        className="mx-auto grid justify-center align-center"
+        id="grid"
+        className="h-full w-full mx-auto grid justify-center absolute top-0"
         style={{
           gridTemplateColumns: `repeat(${layout.cols}, ${layout.tileWidth}px)`,
           gridAutoRows: `${layout.tileHeight}px`,
         }}
       >
-        {Array.from({ length: count }, (_, i) => (
-          <VideoCard name={"test"} isMuted={false} isSpeaking={false} key={i} />
+        {participants.map((participant, i) => (
+          <VideoCard participant={participant} key={i} />
         ))}
       </div>
+      <Canvas
+        camera={{ fov: 25 }}
+        shadows
+        gl={{
+          antialias: true,
+          alpha: false,
+        }}
+        onCreated={({ gl }) => {
+          // Handle WebGL context loss
+          gl.domElement.addEventListener("webglcontextlost", (event) => {
+            event.preventDefault();
+            console.warn("WebGL context lost, attempting to restore...");
+          });
+
+          gl.domElement.addEventListener("webglcontextrestored", () => {
+            console.log("WebGL context restored");
+          });
+        }}
+      >
+        <View.Port></View.Port>
+      </Canvas>
     </div>
   );
 }

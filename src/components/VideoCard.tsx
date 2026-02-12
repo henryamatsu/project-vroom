@@ -1,14 +1,18 @@
-type VideoCardProps = {
-  name: string;
-  isMuted: boolean;
-  isSpeaking?: boolean;
-};
+// this is going to contain AvatarScene
+
+import { View } from "@react-three/drei";
+import { Participant } from "../types";
+import { AvatarScene } from "./AvatarScene";
 
 export default function VideoCard({
-  name,
-  isMuted,
-  isSpeaking = false,
-}: VideoCardProps) {
+  participant,
+}: {
+  participant: Participant;
+}) {
+  const { name, isSpeaking, isMuted } = participant;
+
+  const isVideoOn = true;
+
   return (
     <div
       className={`relative flex aspect-video w-full items-center justify-center bg-neutral-900 text-white inset-ring ${
@@ -16,12 +20,18 @@ export default function VideoCard({
       }`}
     >
       {/* Video placeholder */}
-      <div className="flex flex-col items-center justify-center opacity-80">
-        <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-neutral-700 text-xl font-semibold">
-          {name.charAt(0).toUpperCase()}
+      {isVideoOn ? (
+        <View className={"h-full w-full"}>
+          <AvatarScene participant={participant} />
+        </View>
+      ) : (
+        <div className="flex flex-col items-center justify-center opacity-80">
+          <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-neutral-700 text-xl font-semibold">
+            {name.charAt(0).toUpperCase()}
+          </div>
+          <span className="text-sm text-neutral-300">No video</span>
         </div>
-        <span className="text-sm text-neutral-300">No video</span>
-      </div>
+      )}
 
       {/* Name + mute badge */}
       <div className="absolute bottom-2 left-2">
