@@ -3,7 +3,7 @@
 "use client";
 
 import { useFaceTracking } from "@/src/hooks/useFaceTracking";
-import { BlendshapeCategory } from "@/src/hooks/useFaceTracking";
+import { BlendshapeCategory } from "@/src/types";
 import { Euler } from "three";
 
 interface FaceTrackerProps {
