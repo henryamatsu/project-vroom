@@ -3,6 +3,7 @@
 import { View } from "@react-three/drei";
 import { Participant } from "../types";
 import { AvatarScene } from "./AvatarScene";
+import { RefObject, useRef } from "react";
 
 export default function VideoCard({
   participant,
@@ -13,15 +14,20 @@ export default function VideoCard({
 
   const isVideoOn = true;
 
+  const viewRef = useRef<HTMLDivElement>(null);
+
   return (
     <div
       className={`relative flex aspect-video w-full items-center justify-center bg-neutral-900 text-white inset-ring ${
         isSpeaking ? `inset-ring-lime-300` : "inset-ring-slate-300"
       }`}
+      ref={viewRef}
     >
-      {/* Video placeholder */}
       {isVideoOn ? (
-        <View className={"h-full w-full"}>
+        <View
+          track={viewRef as RefObject<HTMLDivElement>}
+          className={"h-full w-full"}
+        >
           <AvatarScene participant={participant} />
         </View>
       ) : (
