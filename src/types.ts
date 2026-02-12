@@ -6,6 +6,7 @@ export type BlendshapeCategory = {
 };
 
 export type Participant = {
+  id: string;
   name: string;
   url: string;
   blendshapes: BlendshapeCategory[];

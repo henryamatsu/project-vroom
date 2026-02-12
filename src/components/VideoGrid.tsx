@@ -111,8 +111,8 @@ export default function VideoGrid({
           gridAutoRows: `${layout.tileHeight}px`,
         }}
       >
-        {participants.map((participant, i) => (
-          <VideoCard participant={participant} key={i} />
+        {participants.map((participant) => (
+          <VideoCard participant={participant} key={participant.id} />
         ))}
       </div>
       <Canvas
