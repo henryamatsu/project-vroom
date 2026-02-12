@@ -1,4 +1,5 @@
 import { Euler } from "three";
+import type { Participant as LiveKitParticipant } from "livekit-client";
 
 export type BlendshapeCategory = {
   categoryName: string;
@@ -14,4 +15,5 @@ export type Participant = {
   isMuted: boolean;
   isSpeaking: boolean;
   isMirrored: boolean;
+  liveKitParticipant: LiveKitParticipant;
 };

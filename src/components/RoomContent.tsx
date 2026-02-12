@@ -2,9 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import FaceTracker from "@/src/components/FaceTracker";
-import VideoGrid, {
-  type VideoGridParticipant,
-} from "@/src/components/VideoGrid";
+import VideoGrid from "@/src/components/VideoGrid";
 import { BlendshapeCategory, Participant } from "@/src/types";
 import { Euler } from "three";
 import {
@@ -89,7 +87,7 @@ export default function RoomContent({ startMuted = false }: RoomContentProps) {
     [send, connectionState],
   );
 
-  const videoGridParticipants: VideoGridParticipant[] = useMemo(() => {
+  const participants: Participant[] = useMemo(() => {
     return liveKitParticipants.map((lkParticipant, index) => {
       const isLocal = index === 0;
       const identity = lkParticipant.identity;
@@ -114,9 +112,10 @@ export default function RoomContent({ startMuted = false }: RoomContentProps) {
         isMuted: false,
         isSpeaking: false,
         isMirrored: isLocal,
+        liveKitParticipant: lkParticipant,
       };
 
-      return { participant, liveKitParticipant: lkParticipant };
+      return participant;
     });
   }, [liveKitParticipants, localBlendshapes, localRotation, remoteFaceData]);
 
@@ -128,7 +127,7 @@ export default function RoomContent({ startMuted = false }: RoomContentProps) {
         {() => null}
       </FaceTracker>
 
-      <VideoGrid participants={videoGridParticipants} />
+      <VideoGrid participants={participants} />
     </>
   );
 }
