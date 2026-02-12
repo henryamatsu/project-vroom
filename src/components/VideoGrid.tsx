@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import VideoCard from "./VideoCard";
+import ParticipantTile from "./ParticipantTile";
 import { Participant } from "../types";
+import type { Participant as LiveKitParticipant } from "livekit-client";
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
 import { AvatarScene } from "./AvatarScene";
@@ -69,10 +70,15 @@ function computeLayout(
   };
 }
 
+export interface VideoGridParticipant {
+  participant: Participant;
+  liveKitParticipant: LiveKitParticipant;
+}
+
 export default function VideoGrid({
   participants,
 }: {
-  participants: Participant[];
+  participants: VideoGridParticipant[];
 }) {
   const count = participants.length;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,8 +117,12 @@ export default function VideoGrid({
           gridAutoRows: `${layout.tileHeight}px`,
         }}
       >
-        {participants.map((participant) => (
-          <VideoCard participant={participant} key={participant.id} />
+        {participants.map(({ participant, liveKitParticipant }) => (
+          <ParticipantTile
+            key={participant.id}
+            participant={participant}
+            liveKitParticipant={liveKitParticipant}
+          />
         ))}
       </div>
       <Canvas
