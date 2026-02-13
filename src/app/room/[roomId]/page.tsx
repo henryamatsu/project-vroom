@@ -1,7 +1,6 @@
 "use client";
 
 import { useParams, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import { LiveKitRoom } from "@livekit/components-react";
 import RoomContent from "@/src/components/RoomContent";
 import LiveKitConnectionError from "@/src/components/LiveKitConnectionError";
@@ -48,9 +47,5 @@ function RoomPageInner() {
 }
 
 export default function RoomPage() {
-  return (
-    <Suspense fallback={<LiveKitConnecting />}>
-      <RoomPageInner />
-    </Suspense>
-  );
+  return <RoomPageInner />;
 }
