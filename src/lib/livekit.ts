@@ -2,6 +2,7 @@ import { BlendshapeCategory } from "@/src/types";
 import { Euler } from "three";
 
 export const FACE_TRACKING_TOPIC = "face-tracking" as const;
+export const EMOJI_TOPIC = "emoji" as const;
 export const DEFAULT_ROOM_NAME = "vroom-demo";
 
 export const DEFAULT_AVATAR_URL = "/models/default-avatar.glb";

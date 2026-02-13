@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import FaceTracker from "@/src/components/FaceTracker";
 import VideoGrid from "@/src/components/VideoGrid";
 import GuestNameEditor from "@/src/components/GuestNameEditor";
+import ControlBar from "@/src/components/ControlBar";
 import { BlendshapeCategory, Participant } from "@/src/types";
 import { Euler } from "three";
 import {
@@ -16,6 +17,7 @@ import {
 import type { ReceivedDataMessage } from "@livekit/components-core";
 import {
   FACE_TRACKING_TOPIC,
+  EMOJI_TOPIC,
   serializeFaceData,
   payloadToEuler,
   DEFAULT_AVATAR_URL,
@@ -54,8 +56,12 @@ export default function RoomContent({
   const [remoteFaceData, setRemoteFaceData] = useState<
     Map<string, FaceTrackingPayload>
   >(new Map());
+  /** Map of participant identity -> { emoji, expiresAt } for emoji reactions. */
+  const [emojiReactions, setEmojiReactions] = useState<
+    Map<string, { emoji: string; expiresAt: number }>
+  >(new Map());
 
-  const { send } = useDataChannel(
+  const { send: sendFace } = useDataChannel(
     FACE_TRACKING_TOPIC,
     useCallback((msg: ReceivedDataMessage<typeof FACE_TRACKING_TOPIC>) => {
       try {
@@ -85,12 +91,69 @@ export default function RoomContent({
       const json = JSON.stringify(payload);
       const data = new TextEncoder().encode(json);
 
-      send(data, {
+      sendFace(data, {
         topic: FACE_TRACKING_TOPIC,
         reliable: false,
       }).catch((err) => console.warn("Failed to send face data:", err));
     },
-    [send, connectionState],
+    [sendFace, connectionState],
+  );
+
+  const { send: sendEmoji } = useDataChannel(
+    EMOJI_TOPIC,
+    useCallback((msg: ReceivedDataMessage<typeof EMOJI_TOPIC>) => {
+      try {
+        const decoded = new TextDecoder().decode(msg.payload);
+        const { identity, emoji } = JSON.parse(decoded) as {
+          identity: string;
+          emoji: string;
+        };
+        const expiresAt = Date.now() + 4000;
+        setEmojiReactions((prev) => {
+          const next = new Map(prev);
+          next.set(identity, { emoji, expiresAt });
+          return next;
+        });
+      } catch (e) {
+        console.warn("Failed to decode emoji:", e);
+      }
+    }, []),
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setEmojiReactions((prev) => {
+        let changed = false;
+        const next = new Map(prev);
+        for (const [id, { expiresAt }] of next) {
+          if (expiresAt < now) {
+            next.delete(id);
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleEmojiClick = useCallback(
+    (emoji: string) => {
+      const identity = localParticipant.identity;
+      const payload = JSON.stringify({ identity, emoji });
+      const data = new TextEncoder().encode(payload);
+      sendEmoji(data, { topic: EMOJI_TOPIC, reliable: true }).catch((err) =>
+        console.warn("Failed to send emoji:", err)
+      );
+      const expiresAt = Date.now() + 4000;
+      setEmojiReactions((prev) => {
+        const next = new Map(prev);
+        next.set(identity, { emoji, expiresAt });
+        return next;
+      });
+    },
+    [localParticipant.identity, sendEmoji],
   );
 
   const participants: Participant[] = useMemo(() => {
@@ -109,6 +172,9 @@ export default function RoomContent({
           ? payloadToEuler(payload)
           : new Euler();
 
+      const reaction = emojiReactions.get(identity);
+      const displayEmoji = reaction?.emoji;
+
       const participant: Participant = {
         id: identity,
         name,
@@ -118,12 +184,19 @@ export default function RoomContent({
         isMuted: false,
         isSpeaking: false,
         isMirrored: isLocal,
+        displayEmoji,
         liveKitParticipant: lkParticipant,
       };
 
       return participant;
     });
-  }, [liveKitParticipants, localBlendshapes, localRotation, remoteFaceData]);
+  }, [
+    liveKitParticipants,
+    localBlendshapes,
+    localRotation,
+    remoteFaceData,
+    emojiReactions,
+  ]);
 
   const handleGuestNameChange = useCallback(
     (name: string) => {
@@ -152,7 +225,12 @@ export default function RoomContent({
         {() => null}
       </FaceTracker>
 
-      <VideoGrid participants={participants} />
+      <div className="flex h-full w-full flex-col">
+        <div className="min-h-0 flex-1">
+          <VideoGrid participants={participants} />
+        </div>
+        <ControlBar onEmojiClick={handleEmojiClick} />
+      </div>
     </>
   );
 }
