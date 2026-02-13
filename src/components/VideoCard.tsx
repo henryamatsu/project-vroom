@@ -41,7 +41,7 @@ export default function VideoCard({
 
       {/* Emoji reaction overlay */}
       {displayEmoji && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
           <span className="text-6xl animate-bounce drop-shadow-lg">
             {displayEmoji}
           </span>
