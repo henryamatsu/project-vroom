@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import FaceTracker from "@/src/components/FaceTracker";
 import VideoGrid from "@/src/components/VideoGrid";
+import GuestNameEditor from "@/src/components/GuestNameEditor";
 import { BlendshapeCategory, Participant } from "@/src/types";
 import { Euler } from "three";
 import {
@@ -24,13 +25,18 @@ import {
 interface RoomContentProps {
   /** If true, start with microphone muted. Toggle in code for testing. */
   startMuted?: boolean;
+  /** If true, user joined as guest - show name editor. */
+  isGuest?: boolean;
 }
 
 /**
  * Inner room content - must be inside LiveKitRoom for useDataChannel.
  * Builds participants from LiveKit room state + face data. Local user is always first and mirrored.
  */
-export default function RoomContent({ startMuted = false }: RoomContentProps) {
+export default function RoomContent({
+  startMuted = false,
+  isGuest = false,
+}: RoomContentProps) {
   const connectionState = useConnectionState();
   const liveKitParticipants = useParticipants();
   const { localParticipant } = useLocalParticipant();
@@ -119,9 +125,28 @@ export default function RoomContent({ startMuted = false }: RoomContentProps) {
     });
   }, [liveKitParticipants, localBlendshapes, localRotation, remoteFaceData]);
 
+  const handleGuestNameChange = useCallback(
+    (name: string) => {
+      void localParticipant.setName(name);
+    },
+    [localParticipant]
+  );
+
+  const showNameEditor = isGuest;
+
   return (
     <>
       <RoomAudioRenderer />
+
+      {showNameEditor && (
+        <div className="fixed top-4 left-4 z-50 flex items-center gap-2 rounded-lg bg-black/80 px-3 py-2 text-white text-sm">
+          <span className="text-gray-400">Your name:</span>
+          <GuestNameEditor
+            currentName={localParticipant.name ?? "Guest"}
+            onNameChange={handleGuestNameChange}
+          />
+        </div>
+      )}
 
       <FaceTracker onDataChange={handleFaceDataChange} showVideo={false}>
         {() => null}
