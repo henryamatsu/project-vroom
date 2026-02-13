@@ -15,5 +15,7 @@ export type Participant = {
   isMuted: boolean;
   isSpeaking: boolean;
   isMirrored: boolean;
+  /** Emoji currently displayed on this participant's tile (from reaction). */
+  displayEmoji?: string;
   liveKitParticipant: LiveKitParticipant;
 };

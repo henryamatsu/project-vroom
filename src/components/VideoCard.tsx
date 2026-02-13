@@ -10,7 +10,7 @@ export default function VideoCard({
 }: {
   participant: Participant;
 }) {
-  const { name, isSpeaking, isMuted } = participant;
+  const { name, isSpeaking, isMuted, displayEmoji } = participant;
 
   const isVideoOn = true;
 
@@ -36,6 +36,15 @@ export default function VideoCard({
             {name.charAt(0).toUpperCase()}
           </div>
           <span className="text-sm text-neutral-300">No video</span>
+        </div>
+      )}
+
+      {/* Emoji reaction overlay */}
+      {displayEmoji && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <span className="text-6xl animate-bounce drop-shadow-lg">
+            {displayEmoji}
+          </span>
         </div>
       )}
 
