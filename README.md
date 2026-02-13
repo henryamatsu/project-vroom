@@ -1,19 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## LiveKit Setup (for /room)
+## Setup
 
-The room page uses LiveKit to transmit face tracking data between participants. To enable it:
-
-1. Create a free [LiveKit Cloud](https://cloud.livekit.io) account and project.
-2. Create a `.env.local` file in the project root with:
-
-   ```
-   LIVEKIT_URL=wss://your-project.livekit.cloud
-   LIVEKIT_API_KEY=your-api-key
-   LIVEKIT_API_SECRET=your-api-secret
-   ```
-
-3. Run the app and open `/room` in two browser tabs/windows. You should see "LiveKit: connected" and "Receiving from: user-xxx" when face data is flowing between instances.
+See **[SETUP.md](./SETUP.md)** for full environment variable and provider setup (LiveKit, Neon, Clerk).
 
 ## Getting Started
 

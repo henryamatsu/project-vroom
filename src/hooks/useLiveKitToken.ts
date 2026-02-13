@@ -1,12 +1,21 @@
 import { useState, useEffect } from "react";
-import { ROOM_NAME } from "@/src/lib/livekit";
+import { DEFAULT_ROOM_NAME } from "@/src/lib/livekit";
 
 export interface LiveKitToken {
   serverUrl: string;
   participantToken: string;
 }
 
-export function useLiveKitToken() {
+export interface UseLiveKitTokenOptions {
+  roomName?: string;
+  participantName?: string;
+  isGuest?: boolean;
+}
+
+export function useLiveKitToken(options: UseLiveKitTokenOptions = {}) {
+  const { roomName = DEFAULT_ROOM_NAME, participantName, isGuest = false } =
+    options;
+
   const [token, setToken] = useState<LiveKitToken | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +27,11 @@ export function useLiveKitToken() {
         const res = await fetch("/api/token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ room_name: ROOM_NAME }),
+          body: JSON.stringify({
+            room_name: roomName,
+            participant_name: participantName,
+            is_guest: isGuest,
+          }),
         });
 
         if (!res.ok) {
@@ -44,7 +57,7 @@ export function useLiveKitToken() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [roomName, participantName, isGuest]);
 
   return { token, error, isLoading: !token && !error };
 }
