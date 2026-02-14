@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "@/src/styles/themes.css";
 import "@/src/styles/globals.css";
-import ThemeContainer from "../components/ThemeContainer";
+import ThemeContainer from "@/src/components/layout/ThemeContainer";
 
 export const metadata: Metadata = {
   title: "Vroom - Video Conferencing",

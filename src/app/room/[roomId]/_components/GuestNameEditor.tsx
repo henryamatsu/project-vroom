@@ -7,7 +7,7 @@ interface GuestNameEditorProps {
   onNameChange: (name: string) => void | Promise<void>;
 }
 
-export default function GuestNameEditor({
+export function GuestNameEditor({
   currentName,
   onNameChange,
 }: GuestNameEditorProps) {
@@ -29,7 +29,7 @@ export default function GuestNameEditor({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
-          className="px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm text-white w-32"
+          className="w-32 rounded border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-white"
           autoFocus
         />
         <button
@@ -54,7 +54,7 @@ export default function GuestNameEditor({
   return (
     <button
       onClick={() => setIsEditing(true)}
-      className="text-xs text-gray-400 hover:text-gray-300 flex items-center gap-1"
+      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-300"
       title="Change your display name"
     >
       {currentName}

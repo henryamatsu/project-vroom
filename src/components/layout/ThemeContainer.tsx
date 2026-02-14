@@ -1,4 +1,5 @@
 "use client";
+
 import { ReactNode, useEffect, useState, startTransition } from "react";
 
 interface Props {
@@ -6,28 +7,24 @@ interface Props {
 }
 
 export default function ThemeContainer({ children }: Props) {
-  const [theme, setTheme] = useState("dark-theme"); // default for SSR
+  const [theme, setTheme] = useState("dark-theme");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Runs only on client
     const storedTheme = localStorage.getItem("theme") ?? "dark-theme";
-
     startTransition(() => {
-      setTheme(storedTheme); // update theme
-      setMounted(true); // mark as mounted
+      setTheme(storedTheme);
+      setMounted(true);
     });
   }, []);
 
   useEffect(() => {
-    if (!mounted) return; // don't touch DOM before mount
+    if (!mounted) return;
     document.body.className = theme;
     localStorage.setItem("theme", theme);
-
-    console.log(theme);
   }, [theme, mounted]);
 
-  if (!mounted) return null; // prevent hydration mismatch
+  if (!mounted) return null;
 
   return <div className={`${theme} theme-container`}>{children}</div>;
 }

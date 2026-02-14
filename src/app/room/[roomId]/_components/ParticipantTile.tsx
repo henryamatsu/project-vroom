@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useIsMuted, useIsSpeaking } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import type { Participant as LiveKitParticipant } from "livekit-client";
-import VideoCard from "./VideoCard";
+import { VideoCard } from "./VideoCard";
 import { Participant } from "@/src/types";
 
 interface ParticipantTileProps {
@@ -12,11 +12,7 @@ interface ParticipantTileProps {
   liveKitParticipant: LiveKitParticipant;
 }
 
-/**
- * Wraps VideoCard with LiveKit hooks for mute and speaking state.
- * Use this when rendering a participant tile to get real-time isMuted and isSpeaking from LiveKit.
- */
-export default function ParticipantTile({
+export function ParticipantTile({
   participant,
   liveKitParticipant,
 }: ParticipantTileProps) {

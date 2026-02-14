@@ -9,16 +9,9 @@ import { Participant } from "@/src/types";
 
 export function Avatar({ participant }: { participant: Participant }) {
   const { blendshapes, rotation, url, isMirrored } = participant;
-
   const { scene } = useGLTF(url);
-
-  const clonedScene = useMemo(() => {
-    return SkeletonUtils.clone(scene);
-  }, [scene]);
-
-  // Now use the cloned scene
+  const clonedScene = useMemo(() => SkeletonUtils.clone(scene), [scene]);
   const { nodes } = useGraph(clonedScene);
-
   const headMesh = useRef<Mesh[]>([]);
 
   useEffect(() => {
@@ -29,7 +22,6 @@ export function Avatar({ participant }: { participant: Participant }) {
       nodes.Wolf3D_Avatar,
       nodes.Wolf3D_Head_Custom,
     ].filter((mesh): mesh is Mesh => !!mesh);
-
     headMesh.current = meshes;
   }, [nodes]);
 
@@ -45,24 +37,19 @@ export function Avatar({ participant }: { participant: Participant }) {
           }
         });
       });
-
-      if (nodes.Head) {
-        nodes.Head.rotation.set(rotation.x, rotation.y, rotation.z);
-      }
-      if (nodes.Neck) {
+      if (nodes.Head) nodes.Head.rotation.set(rotation.x, rotation.y, rotation.z);
+      if (nodes.Neck)
         nodes.Neck.rotation.set(
           rotation.x / 5 + 0.3,
           rotation.y / 5,
-          rotation.z / 5,
+          rotation.z / 5
         );
-      }
-      if (nodes.Spine2) {
+      if (nodes.Spine2)
         nodes.Spine2.rotation.set(
           rotation.x / 5,
           rotation.y / 5,
-          rotation.z / 5,
+          rotation.z / 5
         );
-      }
     }
   });
 

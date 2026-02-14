@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import FaceTracker from "@/src/components/FaceTracker";
-import VideoGrid from "@/src/components/VideoGrid";
-import GuestNameEditor from "@/src/components/GuestNameEditor";
-import ControlBar from "@/src/components/ControlBar";
+import { FaceTracker } from "./FaceTracker";
+import { ParticipantGrid } from "./ParticipantGrid";
+import { GuestNameEditor } from "./GuestNameEditor";
+import { CallControls } from "./CallControls";
 import { BlendshapeCategory, Participant } from "@/src/types";
 import { Euler } from "three";
 import {
@@ -25,17 +25,11 @@ import {
 } from "@/src/lib/livekit";
 
 interface RoomContentProps {
-  /** If true, start with microphone muted. Toggle in code for testing. */
   startMuted?: boolean;
-  /** If true, user joined as guest - show name editor. */
   isGuest?: boolean;
 }
 
-/**
- * Inner room content - must be inside LiveKitRoom for useDataChannel.
- * Builds participants from LiveKit room state + face data. Local user is always first and mirrored.
- */
-export default function RoomContent({
+export function RoomContent({
   startMuted = false,
   isGuest = false,
 }: RoomContentProps) {
@@ -56,7 +50,6 @@ export default function RoomContent({
   const [remoteFaceData, setRemoteFaceData] = useState<
     Map<string, FaceTrackingPayload>
   >(new Map());
-  /** Map of participant identity -> { emoji, expiresAt } for emoji reactions. */
   const [emojiReactions, setEmojiReactions] = useState<
     Map<string, { emoji: string; expiresAt: number }>
   >(new Map());
@@ -68,7 +61,6 @@ export default function RoomContent({
         const decoded = new TextDecoder().decode(msg.payload);
         const payload = JSON.parse(decoded) as FaceTrackingPayload;
         const identity = msg.from?.identity ?? "unknown";
-
         setRemoteFaceData((prev) => {
           const next = new Map(prev);
           next.set(identity, payload);
@@ -84,13 +76,10 @@ export default function RoomContent({
     (blendshapes: BlendshapeCategory[], rotation: Euler) => {
       setLocalBlendshapes(blendshapes);
       setLocalRotation(rotation);
-
       if (connectionState !== "connected") return;
-
       const payload = serializeFaceData(blendshapes, rotation);
       const json = JSON.stringify(payload);
       const data = new TextEncoder().encode(json);
-
       sendFace(data, {
         topic: FACE_TRACKING_TOPIC,
         reliable: false,
@@ -144,7 +133,7 @@ export default function RoomContent({
       const payload = JSON.stringify({ identity, emoji });
       const data = new TextEncoder().encode(payload);
       sendEmoji(data, { topic: EMOJI_TOPIC, reliable: true }).catch((err) =>
-        console.warn("Failed to send emoji:", err)
+        console.warn("Failed to send emoji:", err),
       );
       const expiresAt = Date.now() + 4000;
       setEmojiReactions((prev) => {
@@ -161,7 +150,6 @@ export default function RoomContent({
       const isLocal = index === 0;
       const identity = lkParticipant.identity;
       const name = lkParticipant.name ?? identity;
-
       const payload = isLocal ? null : remoteFaceData.get(identity);
       const blendshapes = isLocal
         ? localBlendshapes
@@ -171,11 +159,10 @@ export default function RoomContent({
         : payload
           ? payloadToEuler(payload)
           : new Euler();
-
       const reaction = emojiReactions.get(identity);
       const displayEmoji = reaction?.emoji;
 
-      const participant: Participant = {
+      return {
         id: identity,
         name,
         url: DEFAULT_AVATAR_URL,
@@ -187,8 +174,6 @@ export default function RoomContent({
         displayEmoji,
         liveKitParticipant: lkParticipant,
       };
-
-      return participant;
     });
   }, [
     liveKitParticipants,
@@ -202,17 +187,15 @@ export default function RoomContent({
     (name: string) => {
       void localParticipant.setName(name);
     },
-    [localParticipant]
+    [localParticipant],
   );
-
-  const showNameEditor = isGuest;
 
   return (
     <>
       <RoomAudioRenderer />
 
-      {showNameEditor && (
-        <div className="fixed top-4 left-4 z-50 flex items-center gap-2 rounded-lg bg-black/80 px-3 py-2 text-white text-sm">
+      {isGuest && (
+        <div className="fixed left-4 top-4 z-50 flex items-center gap-2 rounded-lg bg-black/80 px-3 py-2 text-sm text-white">
           <span className="text-gray-400">Your name:</span>
           <GuestNameEditor
             currentName={localParticipant.name ?? "Guest"}
@@ -227,9 +210,9 @@ export default function RoomContent({
 
       <div className="flex h-full w-full flex-col">
         <div className="min-h-0 flex-1">
-          <VideoGrid participants={participants} />
+          <ParticipantGrid participants={participants} />
         </div>
-        <ControlBar onEmojiClick={handleEmojiClick} />
+        <CallControls onEmojiClick={handleEmojiClick} />
       </div>
     </>
   );
