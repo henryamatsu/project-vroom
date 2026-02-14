@@ -1,5 +1,3 @@
-// this is going to be directly in the page. Every user only needs one instance of this running
-
 "use client";
 
 import { useFaceTracking } from "@/src/hooks/useFaceTracking";
@@ -8,14 +6,14 @@ import { Euler } from "three";
 
 interface FaceTrackerProps {
   children: (data: {
-    blendshapes: ReturnType<typeof useFaceTracking>["blendshapes"];
-    rotation: ReturnType<typeof useFaceTracking>["rotation"];
+    blendshapes: BlendshapeCategory[];
+    rotation: Euler;
   }) => React.ReactNode;
   onDataChange?: (blendshapes: BlendshapeCategory[], rotation: Euler) => void;
   showVideo?: boolean;
 }
 
-export default function FaceTracker({
+export function FaceTracker({
   children,
   onDataChange,
   showVideo = false,

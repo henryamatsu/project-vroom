@@ -2,9 +2,9 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import { LiveKitRoom } from "@livekit/components-react";
-import RoomContent from "@/src/components/RoomContent";
-import LiveKitConnectionError from "@/src/components/LiveKitConnectionError";
-import LiveKitConnecting from "@/src/components/LiveKitConnecting";
+import { RoomContent } from "./components/RoomContent";
+import { LiveKitConnectionError } from "./components/LiveKitConnectionError";
+import { LiveKitConnecting } from "./components/LiveKitConnecting";
 import { useLiveKitToken } from "@/src/hooks/useLiveKitToken";
 
 const START_MUTED = false;

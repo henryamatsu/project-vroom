@@ -6,8 +6,6 @@ import { Participant } from "@/src/types";
 
 export function AvatarScene({
   participant,
-  // mirrored = false,
-  // style,
 }: {
   participant: Participant;
 }) {

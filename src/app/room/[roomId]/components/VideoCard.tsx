@@ -1,19 +1,13 @@
-// this is going to contain AvatarScene
+"use client";
 
 import { View } from "@react-three/drei";
-import { Participant } from "../types";
+import { Participant } from "@/src/types";
 import { AvatarScene } from "./AvatarScene";
 import { RefObject, useRef } from "react";
 
-export default function VideoCard({
-  participant,
-}: {
-  participant: Participant;
-}) {
+export function VideoCard({ participant }: { participant: Participant }) {
   const { name, isSpeaking, isMuted, displayEmoji } = participant;
-
   const isVideoOn = true;
-
   const viewRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -26,7 +20,7 @@ export default function VideoCard({
       {isVideoOn ? (
         <View
           track={viewRef as RefObject<HTMLDivElement>}
-          className={"h-full w-full"}
+          className="h-full w-full"
         >
           <AvatarScene participant={participant} />
         </View>
@@ -39,22 +33,19 @@ export default function VideoCard({
         </div>
       )}
 
-      {/* Emoji reaction overlay */}
       {displayEmoji && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-          <span className="text-6xl animate-bounce drop-shadow-lg">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+          <span className="animate-bounce text-6xl drop-shadow-lg">
             {displayEmoji}
           </span>
         </div>
       )}
 
-      {/* Name + mute badge */}
       <div className="absolute bottom-2 left-2">
         <div className="flex items-center gap-2 rounded-md bg-black/60 px-2 py-1 backdrop-blur-sm">
           <span className="max-w-[120px] truncate text-sm font-medium">
             {name}
           </span>
-
           {isMuted && (
             <span className="text-red-400" title="Muted">
               🔇
