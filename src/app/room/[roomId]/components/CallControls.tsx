@@ -35,10 +35,7 @@ export function CallControls({ onEmojiClick }: CallControlsProps) {
 
         <LeaveCallButton />
 
-        <IconButton
-          aria-label="Settings"
-          onClick={() => setSettingsOpen(true)}
-        >
+        <IconButton aria-label="Settings" onClick={() => setSettingsOpen(true)}>
           <span className="text-xl" aria-hidden>
             ⚙️
           </span>
