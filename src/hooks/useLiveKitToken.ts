@@ -28,7 +28,7 @@ export function useLiveKitToken(options: UseLiveKitTokenOptions = {}) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            room_name: roomName.trim(),
+            room_name: roomName!.trim(),
             participant_name: participantName,
             is_guest: isGuest,
           }),
