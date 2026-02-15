@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -13,24 +13,70 @@ import {
 export default function JoinPage() {
   const router = useRouter();
   const params = useParams();
-  const roomId = (params.roomId as string) ?? "vroom-demo";
+  const roomId = (params.roomId as string) ?? "";
   const [guestName, setGuestName] = useState("Guest");
+  const [isValidating, setIsValidating] = useState(true);
+  const [roomError, setRoomError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!roomId) {
+      router.replace("/?error=Invalid+room+link");
+      return;
+    }
+    let cancelled = false;
+    async function validate() {
+      const code = roomId.trim().toLowerCase();
+      const res = await fetch(`/api/rooms/${encodeURIComponent(code)}`);
+      if (cancelled) return;
+      if (!res.ok) {
+        setRoomError("Room not found or expired");
+        setIsValidating(false);
+        return;
+      }
+      setIsValidating(false);
+    }
+    validate();
+    return () => { cancelled = true; };
+  }, [roomId, router]);
+
+  const joinCode = roomId.trim().toLowerCase();
 
   const handleJoinAsGuest = () => {
     const name = guestName.trim() || "Guest";
-    router.push(`/room/${roomId}?guest=true&name=${encodeURIComponent(name)}`);
+    router.push(`/room/${joinCode}?guest=true&name=${encodeURIComponent(name)}`);
   };
 
   const handleJoinAsAccount = () => {
-    router.push(`/room/${roomId}`);
+    router.push(`/room/${joinCode}`);
   };
+
+  if (isValidating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        <p className="text-gray-400">Checking room…</p>
+      </div>
+    );
+  }
+
+  if (roomError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-8">
+        <div className="max-w-md w-full text-center space-y-4">
+          <p className="text-red-400">{roomError}</p>
+          <Link href="/" className="inline-block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+            ← Back to home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-2">Join Room</h1>
-          <p className="text-gray-400">Room: {roomId}</p>
+          <p className="text-gray-400">Room: {joinCode}</p>
         </div>
 
         <div className="space-y-6">
@@ -87,7 +133,7 @@ export default function JoinPage() {
                 <div className="flex gap-2">
                   <SignInButton
                     mode="modal"
-                    forceRedirectUrl={`/join/${roomId}`}
+                    forceRedirectUrl={`/join/${joinCode}`}
                   >
                     <button className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition">
                       Login
@@ -95,7 +141,7 @@ export default function JoinPage() {
                   </SignInButton>
                   <SignUpButton
                     mode="modal"
-                    forceRedirectUrl={`/join/${roomId}`}
+                    forceRedirectUrl={`/join/${joinCode}`}
                   >
                     <button className="flex-1 py-3 px-4 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition">
                       Sign up

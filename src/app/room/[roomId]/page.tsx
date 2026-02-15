@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { LiveKitRoom } from "@livekit/components-react";
 import { RoomContent } from "./components/RoomContent";
 import { LiveKitConnectionError } from "./components/LiveKitConnectionError";
@@ -10,19 +11,30 @@ import { useLiveKitToken } from "@/src/hooks/useLiveKitToken";
 const START_MUTED = false;
 
 function RoomPageInner() {
+  const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const roomId = (params.roomId as string) ?? "vroom-demo";
+  const roomId = (params.roomId as string) ?? "";
+
+  useEffect(() => {
+    if (!roomId.trim()) {
+      router.replace("/?error=Invalid+room+link");
+    }
+  }, [roomId, router]);
   const isGuest = searchParams.get("guest") === "true";
   const guestName = searchParams.get("name")
     ? decodeURIComponent(searchParams.get("name")!)
     : "Guest";
 
   const { token, error, isLoading } = useLiveKitToken({
-    roomName: roomId,
+    roomName: roomId.trim() || undefined,
     participantName: isGuest ? guestName : undefined,
     isGuest,
   });
+
+  if (!roomId.trim()) {
+    return null;
+  }
 
   if (error) {
     return <LiveKitConnectionError error={error} />;
