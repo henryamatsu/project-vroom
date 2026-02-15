@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { AccessToken } from "livekit-server-sdk";
 import { getOrCreateUser } from "@/src/lib/db/users";
+import { getRoomByJoinCode, touchRoom } from "@/src/lib/db/rooms";
 
 /**
  * POST /api/token
@@ -32,8 +33,25 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    const roomName = body.room_name ?? "vroom-demo";
+    const roomName = (body.room_name ?? "").trim();
     const isGuest = body.is_guest === true;
+
+    if (!roomName) {
+      return NextResponse.json(
+        { error: "Room name (join code) is required" },
+        { status: 400 }
+      );
+    }
+
+    const room = await getRoomByJoinCode(roomName);
+    if (!room) {
+      return NextResponse.json(
+        { error: "Room not found or expired" },
+        { status: 404 }
+      );
+    }
+
+    await touchRoom(room.joinCode);
     const nameOverride = body.participant_name?.trim();
 
     let participantIdentity: string;
@@ -66,7 +84,7 @@ export async function POST(request: NextRequest) {
       ttl: "10m",
     });
 
-    at.addGrant({ roomJoin: true, room: roomName });
+    at.addGrant({ roomJoin: true, room: room.joinCode });
 
     const participantToken = await at.toJwt();
 

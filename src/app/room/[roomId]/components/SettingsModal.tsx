@@ -20,7 +20,6 @@ interface SettingsModalProps {
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant();
-  const [micLevel, setMicLevel] = useState(0);
 
   const {
     devices: micDevices,
@@ -36,26 +35,16 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     kind: "audiooutput",
   });
 
-  const [activeOutputId, setActiveOutputId] = useState<string>("default");
+  const [activeOutputId, setActiveOutputId] = useState<string>(() => {
+    return room?.getActiveDevice("audiooutput") ?? "default";
+  });
 
   const micPublication = localParticipant.getTrackPublication(
     Track.Source.Microphone,
   );
   const micTrack = micPublication?.track as LocalAudioTrack | undefined;
   const volume = useTrackVolume(micTrack);
-
-  useEffect(() => {
-    if (typeof volume === "number") {
-      setMicLevel(volume);
-    }
-  }, [volume]);
-
-  useEffect(() => {
-    if (room && isOpen) {
-      const outputId = room.getActiveDevice("audiooutput") ?? "default";
-      setActiveOutputId(outputId);
-    }
-  }, [room, isOpen]);
+  const micLevel = typeof volume === "number" ? volume : 0;
 
   const handleOutputChange = useCallback(
     async (deviceId: string) => {
